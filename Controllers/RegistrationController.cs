@@ -53,12 +53,11 @@ namespace OnlineQuiz.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public JsonResult Put(int id, [FromBody] Candidate candidateNew)
+        public JsonResult Put([FromBody] Candidate candidateNew)
         {
             try
             {
-                var candidateOld = _context.Candidate.FirstOrDefault(x => x.CandidateId == id);
+                var candidateOld = _context.Candidate.FirstOrDefault(x => x.CandidateId == candidateNew.CandidateId);
 
                 if (candidateOld != null)
                 {
@@ -76,7 +75,7 @@ namespace OnlineQuiz.Controllers
                     candidateOld.ModifiedBy = candidateNew.Username;
                     candidateOld.ModifiedDate = DateTime.Now;
 
-                    _context.Candidate.Update(candidateNew);
+                    _context.Candidate.Update(candidateOld);
                     _context.SaveChanges();
 
                     return new JsonResult("Candidate Updated Successfully");

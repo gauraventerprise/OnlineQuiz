@@ -32,7 +32,6 @@ namespace OnlineQuiz.Controllers
             }
         }
 
-
         [HttpPost]
         public JsonResult Post([FromBody] Subject subject)
         {
@@ -53,18 +52,18 @@ namespace OnlineQuiz.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public JsonResult Put(int id, [FromBody] Subject subjectNew)
+        public JsonResult Put([FromBody] Subject subjectNew)
         {
             try
             {
-                var subjectOld = _context.Subject.FirstOrDefault(x => x.SubjectId == id);
+                var subjectOld = _context.Subject.FirstOrDefault(x => x.SubjectId == subjectNew.SubjectId);
 
                 if (subjectOld != null)
                 {
                     subjectOld.SubjectName = subjectNew.SubjectName;
                     subjectOld.Active = true;
 
+                    _context.Subject.Update(subjectOld);
                     _context.SaveChanges();
 
                     return new JsonResult("Subject Updated Successfully");
