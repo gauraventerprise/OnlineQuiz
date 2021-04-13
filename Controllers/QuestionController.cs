@@ -53,12 +53,11 @@ namespace OnlineQuiz.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public JsonResult Put(int id, [FromBody] Question questionNew)
+        public JsonResult Put([FromBody] Question questionNew)
         {
             try
             {
-                var questionOld = _context.Question.FirstOrDefault(x => x.QuestionId == id);
+                var questionOld = _context.Question.FirstOrDefault(x => x.QuestionId == questionNew.QuestionId);
 
                 if (questionOld != null)
                 {
@@ -69,10 +68,10 @@ namespace OnlineQuiz.Controllers
                     questionOld.Option4 = questionNew.Option4;
                     questionOld.Answer = questionNew.Answer;
                     questionOld.Complexity = questionNew.Complexity;
-                    
+
                     questionOld.Active = true;
-                    
-                    _context.Question.Update(questionNew);
+
+                    _context.Question.Update(questionOld);
                     _context.SaveChanges();
 
                     return new JsonResult("Question Updated Successfully");
