@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OnlineQuiz.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,64 +12,92 @@ namespace OnlineQuiz.Controllers
     public class SubjectController : ControllerBase
     {
         private readonly ILogger<SubjectController> _logger;
-
-        public SubjectController(ILogger<SubjectController> logger)
+        private readonly CoreDbContext _context;
+        public SubjectController(ILogger<SubjectController> logger, CoreDbContext context)
         {
+            _context = context;
             _logger = logger;
         }
 
-        // GET: api/<SubjectController>
         [HttpGet]
         public IEnumerable<Subject> Get()
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                return context.Subject.ToList();
+                return _context.Subject.ToList();
+            }
+            catch (System.Exception)
+            {
+                throw;
             }
         }
 
-        // GET api/<SubjectController>/5
-        [HttpGet("{id}")]
-        public Subject Get(int id)
-        {
-            using (CoreDbContext context = new CoreDbContext())
-            {
-                return context.Subject.FirstOrDefault(c => c.SubjectId == id);
-            }
-        }
 
-        // POST api/<SubjectController>
         [HttpPost]
-        public void Post([FromBody] Subject subject)
+        public JsonResult Post([FromBody] Subject subject)
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                context.Subject.Add(subject);
-                context.SaveChanges();
+                subject.Active = true;
+                subject.CreatedBy = "";
+                subject.CreatedDate = DateTime.Now;
+
+                _context.Subject.Add(subject);
+                _context.SaveChanges();
+
+                return new JsonResult("Subject Added Successfully");
+            }
+            catch (System.Exception)
+            {
+                throw;
             }
         }
 
-        // PUT api/<SubjectController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Subject subject)
+        public JsonResult Put(int id, [FromBody] Subject subjectNew)
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                context.Subject.Update(subject);
-                context.SaveChanges();
+                var subjectOld = _context.Subject.FirstOrDefault(x => x.SubjectId == id);
+
+                if (subjectOld != null)
+                {
+                    subjectOld.SubjectName = subjectNew.SubjectName;
+                    subjectOld.Active = true;
+
+                    _context.SaveChanges();
+
+                    return new JsonResult("Subject Updated Successfully");
+                }
+
+                return new JsonResult("Please enter valid id");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        // DELETE api/<SubjectController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public JsonResult Delete(int id)
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                var subject = context.Subject.FirstOrDefault(x => x.SubjectId == id);
+                var subject = _context.Subject.FirstOrDefault(x => x.SubjectId == id);
 
-                context.Subject.Remove(subject);
-                context.SaveChanges();
+                if (subject != null)
+                {
+                    _context.Subject.Remove(subject);
+                    _context.SaveChanges();
+
+                    return new JsonResult("Subject Deleted Successfully");
+                }
+
+                return new JsonResult("Please enter valid id");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

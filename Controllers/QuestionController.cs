@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OnlineQuiz.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,64 +12,100 @@ namespace OnlineQuiz.Controllers
     public class QuestionController : ControllerBase
     {
         private readonly ILogger<QuestionController> _logger;
+        private readonly CoreDbContext _context;
 
-        public QuestionController(ILogger<QuestionController> logger)
+        public QuestionController(ILogger<QuestionController> logger, CoreDbContext context)
         {
+            _context = context;
             _logger = logger;
         }
 
-        // GET: api/<QuestionController>
         [HttpGet]
         public IEnumerable<Question> GetAll()
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                return context.Question.ToList();
+                return _context.Question.ToList();
+            }
+            catch (System.Exception)
+            {
+                throw;
             }
         }
 
-        // GET api/<QuestionController>/5
-        [HttpGet]
-        public Question Get(int id)
-        {
-            using (CoreDbContext context = new CoreDbContext())
-            {
-                return context.Question.FirstOrDefault(c => c.QuestionId == id);
-            }
-        }
-
-        // POST api/<QuestionController>
         [HttpPost]
-        public void Post([FromBody] Question question)
+        public JsonResult Post([FromBody] Question question)
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                context.Question.Add(question);
-                context.SaveChanges();
+                question.Active = true;
+                question.CreatedBy = ""; // need to add username
+                question.CreatedDate = DateTime.Now;
+
+                _context.Question.Add(question);
+                _context.SaveChanges();
+
+                return new JsonResult("Question Added Successfully");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        // PUT api/<QuestionController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Question question)
+        public JsonResult Put(int id, [FromBody] Question questionNew)
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                context.Question.Update(question);
-                context.SaveChanges();
+                var questionOld = _context.Question.FirstOrDefault(x => x.QuestionId == id);
+
+                if (questionOld != null)
+                {
+                    questionOld.Question1 = questionNew.Question1;
+                    questionOld.Option1 = questionNew.Option1;
+                    questionOld.Option2 = questionNew.Option2;
+                    questionOld.Option3 = questionNew.Option3;
+                    questionOld.Option4 = questionNew.Option4;
+                    questionOld.Answer = questionNew.Answer;
+                    questionOld.Complexity = questionNew.Complexity;
+                    
+                    questionOld.Active = true;
+                    
+                    _context.Question.Update(questionNew);
+                    _context.SaveChanges();
+
+                    return new JsonResult("Question Updated Successfully");
+                }
+
+                return new JsonResult("Please enter valid id");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        // DELETE api/<QuestionController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public JsonResult Delete(int id)
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                var question = context.Question.FirstOrDefault(x => x.QuestionId == id);
+                var question = _context.Question.FirstOrDefault(x => x.QuestionId == id);
 
-                context.Question.Remove(question);
-                context.SaveChanges();
+                if (question != null)
+                {
+                    _context.Question.Remove(question);
+                    _context.SaveChanges();
+
+                    return new JsonResult("Question Deleted Successfully");
+                }
+
+                return new JsonResult("Please enter valid id");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

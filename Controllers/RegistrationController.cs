@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OnlineQuiz.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,64 +12,104 @@ namespace OnlineQuiz.Controllers
     public class RegistrationController : ControllerBase
     {
         private readonly ILogger<RegistrationController> _logger;
-        
-        public RegistrationController(ILogger<RegistrationController> logger)
+        private readonly CoreDbContext _context;
+
+        public RegistrationController(ILogger<RegistrationController> logger, CoreDbContext context)
         {
+            _context = context;
             _logger = logger;
         }
 
-        // GET: api/<RegistrationController>
         [HttpGet]
-        [Route("GetAllCandidates")]
         public IEnumerable<Candidate> GetAll()
         {
-            using (CoreDbContext context = new CoreDbContext())
+            try
             {
-                return context.Candidate.ToList();
+                return _context.Candidate.ToList();
+            }
+            catch (System.Exception)
+            {
+                throw;
             }
         }
 
-        // GET: api/<RegistrationController>/5
-        [HttpGet("{id}")]
-        [Route("GetCandidateById")]
-        public Candidate Get(int id)
-        {
-            using (CoreDbContext entities = new CoreDbContext())
-            {
-                return entities.Candidate.FirstOrDefault(c => c.CandidateId == id);
-            }
-        }
-
-        // POST api/<RegistrationController>
         [HttpPost]
-        [Route("AddCandidate")]
-        public void Post([FromBody] Candidate value)
+        public JsonResult Post([FromBody] Candidate candidate)
         {
-        }
-
-        // PUT api/<RegistrationController>/5
-        [HttpPut("{id}")]
-        [Route("UpdateCandidate")]
-        public void Put(int id, [FromBody] Candidate candidate)
-        {
-            using (CoreDbContext entities = new CoreDbContext())
+            try
             {
-                entities.Candidate.Update(candidate);
-                entities.SaveChanges();
+                candidate.Active = true;
+                candidate.CreatedBy = candidate.Username;
+                candidate.CreatedDate = DateTime.Now;
+
+                _context.Candidate.Add(candidate);
+                _context.SaveChanges();
+
+                return new JsonResult("Candidate Added Successfully");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 
-        // DELETE api/<RegistrationController>/5
-        [HttpDelete("{id}")]
-        [Route("DeleteCandidate")]
-        public void Delete(int id)
+        [HttpPut("{id}")]
+        public JsonResult Put(int id, [FromBody] Candidate candidateNew)
         {
-            using (CoreDbContext entities = new CoreDbContext())
+            try
             {
-                var candidate = entities.Candidate.FirstOrDefault(x => x.CandidateId == id);
+                var candidateOld = _context.Candidate.FirstOrDefault(x => x.CandidateId == id);
 
-                entities.Candidate.Remove(candidate);
-                entities.SaveChanges();
+                if (candidateOld != null)
+                {
+                    candidateOld.Username = candidateNew.Username;
+                    candidateOld.Password = candidateNew.Password;
+                    candidateOld.FirstName = candidateNew.FirstName;
+                    candidateOld.LastName = candidateNew.LastName;
+                    candidateOld.Address = candidateNew.Address;
+                    candidateOld.Email = candidateNew.Email;
+                    candidateOld.Mobile = candidateNew.Mobile;
+                    candidateOld.Gender = candidateNew.Gender;
+                    candidateOld.Photo = candidateNew.Photo;
+
+                    candidateOld.Active = true;
+                    candidateOld.ModifiedBy = candidateNew.Username;
+                    candidateOld.ModifiedDate = DateTime.Now;
+
+                    _context.Candidate.Update(candidateNew);
+                    _context.SaveChanges();
+
+                    return new JsonResult("Candidate Updated Successfully");
+                }
+
+                return new JsonResult("Please enter valid id");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public JsonResult Delete(int id)
+        {
+            try
+            {
+                var candidate = _context.Candidate.FirstOrDefault(x => x.CandidateId == id);
+
+                if (candidate != null)
+                {
+                    _context.Candidate.Remove(candidate);
+                    _context.SaveChanges();
+
+                    return new JsonResult("Candidate Deleted Successfully");
+                }
+
+                return new JsonResult("Please enter valid id");
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

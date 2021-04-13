@@ -10,12 +10,15 @@ namespace OnlineQuiz.Models
         [Key]
         [Column("candidateId")]
         public int CandidateId { get; set; }
+
         [Column("username")]
         [StringLength(20)]
         public string Username { get; set; }
+
         [Column("password")]
         [StringLength(20)]
         public string Password { get; set; }
+        
         [Column("firstName")]
         [StringLength(20)]
         public string FirstName { get; set; }
