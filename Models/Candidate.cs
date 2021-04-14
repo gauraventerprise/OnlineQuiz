@@ -35,7 +35,7 @@ namespace OnlineQuiz.Models
         [Column("birthday", TypeName = "date")]
         public DateTime? Birthday { get; set; }
         [Column("gender")]
-        [StringLength(1)]
+        [StringLength(10)]
         public string Gender { get; set; }
         [Column("photo")]
         [MaxLength(1)]

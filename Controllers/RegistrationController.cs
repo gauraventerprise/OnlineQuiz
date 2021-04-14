@@ -68,6 +68,7 @@ namespace OnlineQuiz.Controllers
                     candidateOld.Address = candidateNew.Address;
                     candidateOld.Email = candidateNew.Email;
                     candidateOld.Mobile = candidateNew.Mobile;
+                    candidateOld.Birthday = candidateNew.Birthday;
                     candidateOld.Gender = candidateNew.Gender;
                     candidateOld.Photo = candidateNew.Photo;
 
