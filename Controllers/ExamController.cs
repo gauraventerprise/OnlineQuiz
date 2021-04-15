@@ -6,6 +6,8 @@ using System.Linq;
 
 namespace OnlineQuiz.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class ExamController : Controller
     {
 
@@ -18,12 +20,12 @@ namespace OnlineQuiz.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public IEnumerable<Question> GetQuestionsBySubject(int subjectId)
+        [HttpGet("{id}")]
+        public IEnumerable<Question> GetAll(int id)
         {
             try
             {
-                var questions = _context.Question.Where(x => x.SubjectId == subjectId);
+                var questions = _context.Question.Where(x => x.SubjectId == id);
 
                 if (questions != null)
                 {

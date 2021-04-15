@@ -1,0 +1,50 @@
+<h4> Instructions </h4>
+<pre>
+1. Do not resize or minimise the browser during the online exam.
+2. Do not close the browser during the test before your exam is complete.
+3. Do not click the ‘BACK’ button of browser during exam.
+4. Keep an eye on the TIMER CLOCK on top left of the online exam page of the browser to keep a track of
+the time left.
+5. After finishing the exam, click on the End Exam button at the bottom of the browser page.
+6. On the window that pops up on clicking the End Exam button, cross check your ‘username’ and
+the total number of questions attempted.
+7. Once submitted, a message shall be displayed “Your Exam has been submitted successfully’ and you
+can logout from the student online portal.
+8. Make sure you appear for the online exam sitting alone in a well lit room with no background noise during
+the entire process of the exam.
+9. For subjects that requires rough work, make sure you do the rough works on blank sheet and not on any
+notebook.
+</pre>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label">Select Subject</label>
+    <div class="col-sm-4">
+    <select class="form-control" [(ngModel)]="selectedSubject">
+        <option *ngFor="let dataItem of subjectList" [value]="dataItem.subjectId">
+          {{dataItem.subjectName}}
+        </option>
+    </select>
+</div>
+
+    <button (click)="startExam(subjectList)" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"
+    data-backdrop="static" data-keyboard="false"> 
+        Start Exam
+    </button>    
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Start Exam</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeClick()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <app-add-edit-exam [exam]="exam" *ngIf="ActivateExamComp"> </app-add-edit-exam>   
+        </div>
+      </div>
+    </div>
+</div>
